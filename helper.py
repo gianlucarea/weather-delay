@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import folium
 from folium import plugins
 import warnings
+import numpy as np
+
 
 # Function to visualize on map the route
 def route_and_stop_visualization(stops, shapes):
@@ -121,16 +123,26 @@ def time_statistics(df_analytics):
     plt.show()
 
 def plot_number_stops(df_analytics):
-    dataset_settings = {'last_stop_sequence': range(2,31) , 'value': 0}
+    max_stop = df_analytics['stop_sequence'].max()
+    min_stop = df_analytics['stop_sequence'].min()
+    dataset_settings = {'last_stop_sequence': range(min_stop, max_stop + 2) , 'value': 0}
     result = pd.DataFrame(data = dataset_settings).set_index('last_stop_sequence')
     df = df_analytics.groupby(['trip_id']).max('stop_sequence').reset_index()
     for index, row  in df.iterrows():
         result.loc[row['stop_sequence'] ,'value'] = result.loc[row['stop_sequence'] ,'value'] + 1
+    result = result.reset_index()
+    print("For each value:")
+    print(result)
+    print(50 * '-')
+    result.plot(x='last_stop_sequence', y= 'value')
+    return result 
 
-    ### For printing purposes
-    print(result.head(30))
-    print('-' * 50)
-    result.reset_index().plot(x='last_stop_sequence', y= 'value')
+def aggregated_number_stops(result):
+    max_value = result['last_stop_sequence'].max()
+    df = result.groupby(pd.cut(result['last_stop_sequence'], np.arange(0, max_value + 5, 5)))['value'].sum()
+    df = df.reset_index()
+    print(df.head(max_value))
+
 
 def scatter_speed_distance(df_analytics):
     plt.scatter(df_analytics['speed'], df_analytics['dist_diff'])

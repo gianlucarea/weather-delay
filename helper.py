@@ -164,3 +164,39 @@ def scatter_time_speed(df_analytics):
     plt.xlabel('Speed')
     plt.title('Correlation between Time and Speed')
     plt.show()
+
+def period_stop_based_data(df_analytics):
+    # Needed information to process
+    trip_ids = df_analytics['trip_id'].drop_duplicates().to_list()
+    trip_dic = dict.fromkeys(trip_ids, 0)
+
+    # time periods and counters
+    counter = [0,0,0,0,0,0]
+    list_of_range = [['00:00:00','04:00:00'],
+                    ['04:00:00','08:00:00'],
+                    ['08:00:00','12:00:00'],
+                    ['12:00:00','16:00:00'],
+                    ['16:00:00','20:00:00'],
+                    ['20:00:00','24:00:00'],
+                    ]
+    # Creation of resulting dataframe
+    result = pd.DataFrame(columns=['time_period_index', 'time_period', 'stop_sequence', 'total_trains'])
+    for i in range(len(counter)):
+        for j in range(2,df_analytics['stop_sequence'].max()+1):
+            new_row = {'time_period_index': i , 'time_period': list_of_range[i] , 'stop_sequence': j, 'total_trains':0}
+            result = pd.concat([result, pd.DataFrame([new_row])], ignore_index=True)
+    #Calculations
+    for i in range(len(list_of_range)):
+        for j in (key for key in trip_dic if trip_dic[key] == 0):
+            row = df_analytics.loc[(df_analytics['trip_id'] == j) &
+                                (df_analytics['stop_sequence'] == 1)]
+            
+            if (row['departure_time'].item() >= list_of_range[i][0]) and (row['departure_time'].item() <= list_of_range[i][1]):
+                counter[i] += 1
+                trip_dic[j] += 1
+                #get the trip 
+                data = df_analytics.loc[(df_analytics['trip_id'] == j)]
+                result.loc[(result['time_period_index'] == i) & (result['stop_sequence'] == data['stop_sequence'].max()),'total_trains'] += 1
+                        
+    print(counter)
+    return result

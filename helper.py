@@ -1,12 +1,7 @@
 import pandas as pd
-import gtfs_kit as gk
-import geopandas as gpd
-import pyproj as pj
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import folium
 from folium import plugins
-import warnings
 import numpy as np
 
 
@@ -165,33 +160,47 @@ def scatter_time_speed(df_analytics):
     plt.title('Correlation between Time and Speed')
     plt.show()
 
-def period_stop_based_data(df_analytics):
+def calculate_list_of_range_times(value):
+    list_of_ammisible_value = [2,3,4,6,8,12]
+    if value not in list_of_ammisible_value:
+        return "Error the value is not in (2,3,4,6,8,12)"
+    list_of_range_time = []
+    x = np.arange(0,26,value).tolist()
+    for i in range(len(x)):
+        array_to_append = []
+        if x[i] < 10 and x[i+1] < 10:
+            array_to_append = ['0' + str(x[i]) + ':00:00' , '0' + str(x[i+1]) + ':00:00']
+        elif x[i] < 10 and x[i+1] >= 10:
+            array_to_append = ['0' + str(x[i]) + ':00:00' , str(x[i+1]) + ':00:00']
+        elif (i+1) >= len(x):
+            continue
+        else:
+            array_to_append = [ str(x[i]) + ':00:00' , str(x[i+1]) + ':00:00']
+        list_of_range_time.append(array_to_append)
+    return list_of_range_time
+
+
+def period_stop_based_data(df_analytics,list_of_range_time):
     # Needed information to process
     trip_ids = df_analytics['trip_id'].drop_duplicates().to_list()
     trip_dic = dict.fromkeys(trip_ids, 0)
 
-    # time periods and counters
-    counter = [0,0,0,0,0,0]
-    list_of_range = [['00:00:00','04:00:00'],
-                    ['04:00:00','08:00:00'],
-                    ['08:00:00','12:00:00'],
-                    ['12:00:00','16:00:00'],
-                    ['16:00:00','20:00:00'],
-                    ['20:00:00','24:00:00'],
-                    ]
+    # counters
+    counter = [0] * len(list_of_range_time)
+
     # Creation of resulting dataframe
     result = pd.DataFrame(columns=['time_period_index', 'time_period', 'stop_sequence', 'total_trains'])
     for i in range(len(counter)):
         for j in range(2,df_analytics['stop_sequence'].max()+1):
-            new_row = {'time_period_index': i , 'time_period': list_of_range[i] , 'stop_sequence': j, 'total_trains':0}
+            new_row = {'time_period_index': i , 'time_period': list_of_range_time[i] , 'stop_sequence': j, 'total_trains':0}
             result = pd.concat([result, pd.DataFrame([new_row])], ignore_index=True)
     #Calculations
-    for i in range(len(list_of_range)):
+    for i in range(len(list_of_range_time)):
         for j in (key for key in trip_dic if trip_dic[key] == 0):
             row = df_analytics.loc[(df_analytics['trip_id'] == j) &
                                 (df_analytics['stop_sequence'] == 1)]
             
-            if (row['departure_time'].item() >= list_of_range[i][0]) and (row['departure_time'].item() <= list_of_range[i][1]):
+            if (row['departure_time'].item() >= list_of_range_time[i][0]) and (row['departure_time'].item() <= list_of_range_time[i][1]):
                 counter[i] += 1
                 trip_dic[j] += 1
                 #get the trip 

@@ -132,9 +132,9 @@ def plot_number_stops(df_analytics):
     result.plot(x='last_stop_sequence', y= 'value')
     return result 
 
-def aggregated_number_stops(result):
+def aggregated_number_stops(result, input_value):
     max_value = result['last_stop_sequence'].max()
-    df = result.groupby(pd.cut(result['last_stop_sequence'], np.arange(0, max_value + 5, 5)))['value'].sum()
+    df = result.groupby(pd.cut(result['last_stop_sequence'], np.arange(0, max_value + 5, input_value)))['value'].sum()
     df = df.reset_index()
     print(df.head(max_value))
 
@@ -161,9 +161,9 @@ def scatter_time_speed(df_analytics):
     plt.show()
 
 def calculate_list_of_range_times(value):
-    list_of_ammisible_value = [2,3,4,6,8,12]
+    list_of_ammisible_value = [1,2,3,4,6,8,12]
     if value not in list_of_ammisible_value:
-        return "Error the value is not in (2,3,4,6,8,12)"
+        return "Error the value is not in (1,2,3,4,6,8,12)"
     list_of_range_time = []
     x = np.arange(0,26,value).tolist()
     for i in range(len(x)):
@@ -183,29 +183,40 @@ def calculate_list_of_range_times(value):
 def period_stop_based_data(df_analytics,list_of_range_time):
     # Needed information to process
     trip_ids = df_analytics['trip_id'].drop_duplicates().to_list()
-    trip_dic = dict.fromkeys(trip_ids, 0)
-
     # counters
     counter = [0] * len(list_of_range_time)
-
     # Creation of resulting dataframe
     result = pd.DataFrame(columns=['time_period_index', 'time_period', 'stop_sequence', 'total_trains'])
     for i in range(len(counter)):
         for j in range(2,df_analytics['stop_sequence'].max()+1):
             new_row = {'time_period_index': i , 'time_period': list_of_range_time[i] , 'stop_sequence': j, 'total_trains':0}
             result = pd.concat([result, pd.DataFrame([new_row])], ignore_index=True)
-    #Calculations
-    for i in range(len(list_of_range_time)):
-        for j in (key for key in trip_dic if trip_dic[key] == 0):
-            row = df_analytics.loc[(df_analytics['trip_id'] == j) &
-                                (df_analytics['stop_sequence'] == 1)]
             
-            if (row['departure_time'].item() >= list_of_range_time[i][0]) and (row['departure_time'].item() <= list_of_range_time[i][1]):
+    #Calculations (O(n*m))
+    for key in trip_ids:
+        for i in range(len(list_of_range_time)):
+            #the subset for our trip
+            data = df_analytics.loc[(df_analytics['trip_id'] == key)]   
+            #Row of first stop and row of last stop
+            start_row = data.loc[data['stop_sequence'] == 1]
+            end_row = data.loc[data['stop_sequence'] == data['stop_sequence'].max()]
+
+            # If trip start during range or trip is traveling during range or trip arrives during range
+            if (
+                (start_row['departure_time'].item() >= list_of_range_time[i][0]) and 
+                (start_row['departure_time'].item() <= list_of_range_time[i][1])
+            ) or (
+                (start_row['departure_time'].item() <= list_of_range_time[i][0]) and
+                (end_row['arrival_time'].item() >= list_of_range_time[i][1])
+            ) or (
+                (end_row['arrival_time'].item() >= list_of_range_time[i][0]) and
+                (end_row['arrival_time'].item() <= list_of_range_time[i][1])
+            ):
                 counter[i] += 1
-                trip_dic[j] += 1
-                #get the trip 
-                data = df_analytics.loc[(df_analytics['trip_id'] == j)]
-                result.loc[(result['time_period_index'] == i) & (result['stop_sequence'] == data['stop_sequence'].max()),'total_trains'] += 1
-                        
+                result.loc[(result['time_period_index'] == i) & (result['stop_sequence'] == data['stop_sequence'].max()),'total_trains'] += 1            
+    
+    for i in range(len(counter)):
+        print('the number of trains in transit during ' + str(list_of_range_time[i]) + ' is ' + str(counter[i]))
+
     print(counter)
     return result

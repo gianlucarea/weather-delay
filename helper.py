@@ -63,33 +63,40 @@ def stop_sequence_statistics(df_analytics):
     plt.hist(df_analytics.stop_sequence)
     plt.xlabel('No. Stops')
     plt.ylabel('Frequency')
+    #plt.savefig('stop_sequence_statistics.png')
     plt.show()
 
 def boxplot_stop_sequence(df_analytics):
     plt.boxplot(df_analytics.stop_sequence)
     plt.title('No. stops per trip')
+    #plt.savefig('stop_sequence_box_plot.png')
     plt.show()
 
 def boxplot_time(df_analytics):
     plt.boxplot(df_analytics.time_diff)
     plt.title('Time Diff')
     plt.ylabel("seconds (s)")
+    #plt.savefig('time_box_plot.png')
     plt.show()
 
 def boxplot_distance(df_analytics):
     plt.boxplot(df_analytics.dist_diff)
     plt.title('Distance Diff')
     plt.ylabel("Kilometers (km)")
+    #plt.savefig('distance_box_plot.png')
     plt.show()
 
 def boxplot_speed(df_analytics):
     plt.boxplot(df_analytics.speed)
     plt.title('Speed')
     plt.ylabel("Kilometer per hour (km/h)")
+    #plt.savefig('speed_box_plot.png')
     plt.show()
 
 def speed_statistics(df_analytics):
     print("Mean of speed : " + str(df_analytics.speed.mean()))
+    print('-' * 50)
+    print("Median of speed : " + str(df_analytics.speed.median()))
     print('-' * 50)
     print("Standard Deviation of speed : " + str(df_analytics.speed.std()))
     print('-' * 50)
@@ -100,11 +107,14 @@ def speed_statistics(df_analytics):
     plt.hist(df_analytics.speed)
     plt.xlabel('Speed (km/h)')
     plt.ylabel('Frequency')
+    #plt.savefig('speed_barchart_plot.png')
     plt.show()
 
 def distance_statistics(df_analytics):
     # Basic statistics on the number of stops
     print("Mean of distance difference : " + str(df_analytics.dist_diff.mean()))
+    print('-' * 50)
+    print("Median of distance difference : " + str(df_analytics.dist_diff.median()))
     print('-' * 50)
     print("Standard Deviation of distance difference : " + str(df_analytics.dist_diff.std()))
     print('-' * 50)
@@ -115,11 +125,14 @@ def distance_statistics(df_analytics):
     plt.hist(df_analytics.dist_diff)
     plt.xlabel('Distance Difference (km)')
     plt.ylabel('Frequency')
+    #plt.savefig('distance_barchart_plot.png')
     plt.show()
 
 def time_statistics(df_analytics):
     # Basic statistics on the number of stops
     print("Mean of time difference : " + str(df_analytics.time_diff.mean()))
+    print('-' * 50)
+    print("Median of time difference : " + str(df_analytics.time_diff.median()))
     print('-' * 50)
     print("Standard Deviation of time difference : " + str(df_analytics.time_diff.std()))
     print('-' * 50)
@@ -130,6 +143,7 @@ def time_statistics(df_analytics):
     plt.hist(df_analytics.time_diff)
     plt.xlabel('Time Difference (s)')
     plt.ylabel('Frequency')
+    #plt.savefig('time_barchart_plot.png')
     plt.show()
 
 def plot_number_stops(df_analytics):
@@ -144,7 +158,13 @@ def plot_number_stops(df_analytics):
     print("For each value:")
     print(result)
     print(50 * '-')
-    result.plot(x='last_stop_sequence', y= 'value')
+    #result.plot(x='last_stop_sequence', y= 'value' ,color='r')
+    plt.title('N. trips for last stop_sequence')
+    # Plot total 
+    plt.plot(result['last_stop_sequence'], result['value'], color='r')
+    plt.xlabel('last_stop_sequence')
+    plt.ylabel('value')
+    plt.show()
     return result 
 
 def aggregated_number_stops(result, input_value):
@@ -159,6 +179,7 @@ def scatter_speed_distance(df_analytics):
     plt.title('Correlation between Speed and Distance')
     plt.xlabel('Speed')
     plt.ylabel('Distance Difference Between Stops')
+    #plt.savefig('scatter_speed_distance_plot.png')
     plt.show()
 
 def scatter_time_distance(df_analytics):
@@ -166,6 +187,7 @@ def scatter_time_distance(df_analytics):
     plt.ylabel('Time Difference')
     plt.xlabel('Distance Difference Between Stops')
     plt.title('Correlation between Time and Distance')
+    #plt.savefig('scatter_time_distance_plot.png')
     plt.show()
 
 def scatter_time_speed(df_analytics):
@@ -173,6 +195,7 @@ def scatter_time_speed(df_analytics):
     plt.ylabel('Time Difference between Stops')
     plt.xlabel('Speed')
     plt.title('Correlation between Time and Speed')
+    #plt.savefig('scatter_time_speed_plot.png')
     plt.show()
 
 def calculate_list_of_range_times(value):

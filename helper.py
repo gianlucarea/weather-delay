@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import folium
 from folium import plugins
 import numpy as np
+import seaborn as sns
 
 
 # Function to visualize on map the route
@@ -29,6 +30,30 @@ def route_and_stop_visualization(stops, shapes):
     
     return map
 
+def dataset_for_scatter(stop_times):
+    df_analytics = pd.DataFrame(columns=['time', 'distance', 'speed'])
+    list_of_trip_id = list(dict.fromkeys(stop_times['trip_id'].to_list()))
+    for trip_id in list_of_trip_id:
+        df = stop_times.loc[(stop_times['trip_id'] == trip_id)];
+        time = df['time_diff'].sum()
+        distance = df['dist_diff'].sum()
+        speed = (df['speed'].sum())/(df['stop_sequence'].max() - 1)
+        new_row = {'time': time, 'distance':distance, 'speed':speed}
+        df_analytics = pd.concat([df_analytics, pd.DataFrame([new_row])], ignore_index=True)
+    return df_analytics
+    
+def dataset_for_scatter_year(stop_times_year):
+    df_analytics = pd.DataFrame(columns=['time', 'distance', 'speed'])
+    list_of_trip_id = list(dict.fromkeys(stop_times_year['trip_id'].to_list()))
+    for trip_id in list_of_trip_id:
+        df = stop_times_year.loc[(stop_times_year['trip_id'] == trip_id)];
+        time = round(df['time_diff'].sum(),1)
+        distance = df['dist_diff'].sum()
+        speed =  round(distance/time)  # (df['speed'].sum())/(df['stop_sequence'].max() - 1)
+        new_row = {'time': time, 'distance':distance, 'speed':speed}
+        df_analytics = pd.concat([df_analytics, pd.DataFrame([new_row])], ignore_index=True)
+    return df_analytics
+    
 def get_sec(time_str):
     """Get seconds from time."""
     h, m, s = time_str.split(':')
@@ -141,7 +166,7 @@ def time_statistics(df_analytics):
     # Distribution of number of stops in the dataset
     plt.title('Distribution of time between stops')
     plt.hist(df_analytics.time_diff)
-    plt.xlabel('Time Difference (s)')
+    plt.xlabel('Time Difference (h)')
     plt.ylabel('Frequency')
     #plt.savefig('time_barchart_plot.png')
     plt.show()
@@ -164,6 +189,7 @@ def plot_number_stops(df_analytics):
     plt.plot(result['last_stop_sequence'], result['value'], color='r')
     plt.xlabel('last_stop_sequence')
     plt.ylabel('value')
+    plt.savefig('number_stops_plot.png')
     plt.show()
     return result 
 
@@ -175,29 +201,37 @@ def aggregated_number_stops(result, input_value):
 
 
 def scatter_speed_distance(df_analytics):
-    plt.scatter(df_analytics['speed'], df_analytics['dist_diff'])
+    plt.scatter(df_analytics['distance'],df_analytics['speed'] )
     plt.title('Correlation between Speed and Distance')
-    plt.xlabel('Speed')
-    plt.ylabel('Distance Difference Between Stops')
+    plt.ylabel('Average Speed')
+    plt.xlabel('Distance Difference Between Stops')
     #plt.savefig('scatter_speed_distance_plot.png')
     plt.show()
 
 def scatter_time_distance(df_analytics):
-    plt.scatter( df_analytics['dist_diff'],df_analytics['time_diff'])
-    plt.ylabel('Time Difference')
-    plt.xlabel('Distance Difference Between Stops')
+    plt.scatter( df_analytics['time'],df_analytics['distance'])
+    plt.xlabel('Time Difference')
+    plt.ylabel('Distance Difference Between Stops')
     plt.title('Correlation between Time and Distance')
     #plt.savefig('scatter_time_distance_plot.png')
     plt.show()
 
 def scatter_time_speed(df_analytics):
-    plt.scatter(df_analytics['speed'],df_analytics['time_diff'])
-    plt.ylabel('Time Difference between Stops')
-    plt.xlabel('Speed')
+    plt.scatter(df_analytics['time'],df_analytics['speed'])
+    plt.xlabel('Time Difference between Stops')
+    plt.ylabel('Average Speed')
     plt.title('Correlation between Time and Speed')
     #plt.savefig('scatter_time_speed_plot.png')
     plt.show()
+    
+def correlogram_time_distance_speed(df_analytics):
+    import seaborn as sns
+    #df = sns.load_dataset()
 
+    sns.pairplot(df_analytics)
+    #plt.savefig('correlation_speed_time_distance.png')
+    plt.show()
+    
 def calculate_list_of_range_times(value):
     list_of_ammisible_value = [1,2,3,4,6,8,12]
     if value not in list_of_ammisible_value:

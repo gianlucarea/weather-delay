@@ -57,7 +57,8 @@ def dataset_for_scatter_year(stop_times_year):
 def get_sec(time_str):
     """Get seconds from time."""
     h, m, s = time_str.split(':')
-    return int(h) * 3600 + int(m) * 60 + int(s)
+    total = (int(h) * 3600)+ (int(m) * 60) + int(s)
+    return total
 
 def calendar_2022():
     array_calendar=['20220103','20220110','20220117','20220124','20220131',
@@ -203,7 +204,7 @@ def plot_number_stops(df_analytics):
     plt.plot(result['last_stop_sequence'], result['value'], color='r')
     plt.xlabel('last_stop_sequence')
     plt.ylabel('value')
-    plt.savefig('number_stops_plot.png')
+    #plt.savefig('number_stops_plot.png')
     plt.show()
     return result 
 

@@ -4,6 +4,7 @@ import folium
 from folium import plugins
 import numpy as np
 import seaborn as sns
+import gtfs_kit as gk
 
 
 # Function to visualize on map the route
@@ -89,104 +90,10 @@ def calendar_2021():
                     '20211220','20211227','20220103']
 
     return array_calendar
-def stop_sequence_statistics(df_analytics):
-    # Basic statistics on the number of stops
-    print("Mean of stop_sequence : " + str(df_analytics.stop_sequence.mean()))
-    print('-' * 50)
-    print("Median of stop_sequence : " + str(df_analytics.stop_sequence.median()))
-    print('-' * 50)
-    print("Standard Deviation of stop_sequence : " + str(df_analytics.stop_sequence.std()))
-    print('-' * 50)
-    print("Skewness of stop_sequence : " + str(df_analytics.stop_sequence.skew()))
-    # Distribution of number of stops in the dataset
-    plt.title('Distribution of the no. stops in the dataset')
-    plt.hist(df_analytics.stop_sequence)
-    plt.xlabel('No. Stops')
-    plt.ylabel('Frequency')
-    #plt.savefig('stop_sequence_statistics.png')
-    plt.show()
 
-def boxplot_stop_sequence(df_analytics):
-    plt.boxplot(df_analytics.stop_sequence)
-    plt.title('No. stops per trip')
-    #plt.savefig('stop_sequence_box_plot.png')
-    plt.show()
 
-def boxplot_time(df_analytics):
-    plt.boxplot(df_analytics.time_diff)
-    plt.title('Time Diff')
-    plt.ylabel("seconds (s)")
-    #plt.savefig('time_box_plot.png')
-    plt.show()
 
-def boxplot_distance(df_analytics):
-    plt.boxplot(df_analytics.dist_diff)
-    plt.title('Distance Diff')
-    plt.ylabel("Kilometers (km)")
-    #plt.savefig('distance_box_plot.png')
-    plt.show()
-
-def boxplot_speed(df_analytics):
-    plt.boxplot(df_analytics.speed)
-    plt.title('Speed')
-    plt.ylabel("Kilometer per hour (km/h)")
-    #plt.savefig('speed_box_plot.png')
-    plt.show()
-
-def speed_statistics(df_analytics):
-    print("Mean of speed : " + str(df_analytics.speed.mean()))
-    print('-' * 50)
-    print("Median of speed : " + str(df_analytics.speed.median()))
-    print('-' * 50)
-    print("Standard Deviation of speed : " + str(df_analytics.speed.std()))
-    print('-' * 50)
-    print("Skewness of speed : " + str(df_analytics.speed.skew()))
-    print('-' * 50)
-    # Distribution of number of stops in the dataset
-    plt.title('Distribution of speed between stops')
-    plt.hist(df_analytics.speed)
-    plt.xlabel('Speed (km/h)')
-    plt.ylabel('Frequency')
-    #plt.savefig('speed_barchart_plot.png')
-    plt.show()
-
-def distance_statistics(df_analytics):
-    # Basic statistics on the number of stops
-    print("Mean of distance difference : " + str(df_analytics.dist_diff.mean()))
-    print('-' * 50)
-    print("Median of distance difference : " + str(df_analytics.dist_diff.median()))
-    print('-' * 50)
-    print("Standard Deviation of distance difference : " + str(df_analytics.dist_diff.std()))
-    print('-' * 50)
-    print("Skewness of distance difference : " + str(df_analytics.dist_diff.skew()))
-    print('-' * 50)
-    # Distribution of number of stops in the dataset
-    plt.title('Distribution of distance between stops')
-    plt.hist(df_analytics.dist_diff)
-    plt.xlabel('Distance Difference (km)')
-    plt.ylabel('Frequency')
-    #plt.savefig('distance_barchart_plot.png')
-    plt.show()
-
-def time_statistics(df_analytics):
-    # Basic statistics on the number of stops
-    print("Mean of time difference : " + str(df_analytics.time_diff.mean()))
-    print('-' * 50)
-    print("Median of time difference : " + str(df_analytics.time_diff.median()))
-    print('-' * 50)
-    print("Standard Deviation of time difference : " + str(df_analytics.time_diff.std()))
-    print('-' * 50)
-    print("Skewness of time difference : " + str(df_analytics.time_diff.skew()))
-    print('-' * 50)
-    # Distribution of number of stops in the dataset
-    plt.title('Distribution of time between stops')
-    plt.hist(df_analytics.time_diff)
-    plt.xlabel('Time Difference (h)')
-    plt.ylabel('Frequency')
-    #plt.savefig('time_barchart_plot.png')
-    plt.show()
-
-def plot_number_stops(df_analytics):
+def calculate_stops(df_analytics):
     max_stop = df_analytics['stop_sequence'].max()
     min_stop = df_analytics['stop_sequence'].min()
     dataset_settings = {'last_stop_sequence': range(min_stop, max_stop + 2) , 'value': 0}
@@ -195,17 +102,6 @@ def plot_number_stops(df_analytics):
     for index, row  in df.iterrows():
         result.loc[row['stop_sequence'] ,'value'] = result.loc[row['stop_sequence'] ,'value'] + 1
     result = result.reset_index()
-    print("For each value:")
-    print(result)
-    print(50 * '-')
-    #result.plot(x='last_stop_sequence', y= 'value' ,color='r')
-    plt.title('N. trips for last stop_sequence')
-    # Plot total 
-    plt.plot(result['last_stop_sequence'], result['value'], color='r')
-    plt.xlabel('last_stop_sequence')
-    plt.ylabel('value')
-    #plt.savefig('number_stops_plot.png')
-    plt.show()
     return result 
 
 def aggregated_number_stops(result, input_value):
@@ -240,13 +136,11 @@ def scatter_time_speed(df_analytics):
     plt.show()
     
 def correlogram_time_distance_speed(df_analytics):
-    import seaborn as sns
-    #df = sns.load_dataset()
-
     sns.pairplot(df_analytics)
-    #plt.savefig('correlation_speed_time_distance.png')
+    plt.savefig('../images/correlation_speed_time_distance.png')
     plt.show()
-    
+
+
 def calculate_list_of_range_times(value):
     list_of_ammisible_value = [1,2,3,4,6,8,12]
     if value not in list_of_ammisible_value:
@@ -267,6 +161,86 @@ def calculate_list_of_range_times(value):
     return list_of_range_time
 
 
+def select_year_df(start,end):
+    #Read entire Dataset
+    feed = gk.feed.read_feed('../processed_files/preprocessing_gtfs_static.zip',dist_units="km")
+    routes = gk.routes.get_routes(feed)
+    stop_times = feed.get_stop_times()
+    trips = feed.get_trips()
+    stops = feed.get_stops()
+    shapes = feed.shapes
+    calendar_dates = feed.calendar_dates
+    calendar = feed.calendar
+    ## Collecting all service date of trips on those days
+    year_calendar_dates = calendar_dates.loc[(calendar_dates['date'] >= start) & 
+                                    (calendar_dates['date'] <= end) ]
+    
+    # Removing data outside the selected year 
+    ## Creating new calendar and collect service date from 
+    ## previous new calendar_dates with drop duplicates
+    year_calendar = calendar.iloc[0:0]
+    service_id_list = list(dict.fromkeys(year_calendar_dates['service_id']))
+
+    for service_id in service_id_list:
+        row  = calendar.loc[calendar['service_id'] == service_id]
+        year_calendar = pd.concat([year_calendar, row],
+                          ignore_index = True)
+
+    ## Creating new trips dataframe and collect trips using the list of service id
+    year_trips = trips.iloc[0:0]
+
+    for service_id in service_id_list:
+        row  = trips.loc[trips['service_id'] == service_id]
+        year_trips = pd.concat([year_trips, row],
+                          ignore_index = True)
+
+    ## Creating list of shapes_id,route_id,trips_id from sw_trips
+    route_id_list = list(dict.fromkeys(year_trips['route_id']))
+    shape_id_list = list(dict.fromkeys(year_trips['shape_id']))
+    trip_id_list = list(dict.fromkeys(year_trips['trip_id']))
+
+    ## Creating new route dataframe
+    year_routes = routes.iloc[0:0]
+
+    for route_id in route_id_list:
+        row = routes.loc[routes['route_id']==route_id]
+        year_routes = pd.concat([year_routes,row],ignore_index=True)
+
+    ## Creating new shape dataframe
+    year_shapes = shapes.iloc[0:0]
+
+    for shape_id in shape_id_list:
+        row = shapes.loc[shapes['shape_id']==shape_id]
+        year_shapes = pd.concat([year_shapes, row],ignore_index = True)
+
+    ## Creating new stop_times dataframe
+    year_stop_times = stop_times.iloc[0:0]
+
+    for trip_id in trip_id_list:
+        row = stop_times.loc[stop_times['trip_id'] == trip_id]
+        year_stop_times = pd.concat([year_stop_times,row],ignore_index = True)
+    stop_id_list = list(dict.fromkeys(year_stop_times['stop_id']))
+
+    ## Creating new stop dataframe, should be equal at this point 
+    ## but we do it for safe reasons
+    year_stops = stops.iloc[0:0]
+
+    for stop_id in stop_id_list:
+        row = stops.loc[stops['stop_id']==stop_id]
+        year_stops = pd.concat([year_stops,row],ignore_index = True)
+    
+    # Join the dataset for easy at use
+    year_analytics = year_trips
+    year_analytics = pd.merge(year_analytics, year_calendar_dates, on=['service_id','service_id'])
+    year_analytics = pd.merge(year_analytics, year_stop_times, on=['trip_id','trip_id'])
+    year_analytics = year_analytics.drop(['trip_headsign','direction_id','shape_id',
+                                     'arrival_time', 'departure_time','shape_dist_traveled',
+                                     'time_diff', 'speed', 'dist_diff','route_id'
+                                     ], axis='columns')
+    
+    return year_analytics
+    
+    
 def period_stop_based_data(df_analytics,list_of_range_time):
     # Needed information to process
     trip_ids = df_analytics['trip_id'].drop_duplicates().to_list()
@@ -276,7 +250,8 @@ def period_stop_based_data(df_analytics,list_of_range_time):
     result = pd.DataFrame(columns=['time_period_index', 'time_period', 'stop_sequence', 'total_trains'])
     for i in range(len(counter)):
         for j in range(2,df_analytics['stop_sequence'].max()+1):
-            new_row = {'time_period_index': i , 'time_period': list_of_range_time[i] , 'stop_sequence': j, 'total_trains':0}
+            new_row = {'time_period_index': i , 'time_period': list_of_range_time[i] ,
+                       'stop_sequence': j, 'total_trains':0}
             result = pd.concat([result, pd.DataFrame([new_row])], ignore_index=True)
             
     #Calculations (O(n*m))
@@ -300,10 +275,13 @@ def period_stop_based_data(df_analytics,list_of_range_time):
                 (end_row['arrival_time'].item() <= list_of_range_time[i][1])
             ):
                 counter[i] += 1
-                result.loc[(result['time_period_index'] == i) & (result['stop_sequence'] == data['stop_sequence'].max()),'total_trains'] += 1            
+                result.loc[(result['time_period_index'] == i) & 
+                           (result['stop_sequence'] == data['stop_sequence'].max()),
+                           'total_trains'] += 1            
     
     for i in range(len(counter)):
-        print('the number of trains in transit during ' + str(list_of_range_time[i]) + ' is ' + str(counter[i]))
+        print('the number of trains in transit during ' + 
+              str(list_of_range_time[i]) + ' is ' + str(counter[i]))
 
     print(counter)
     return result

@@ -6,6 +6,9 @@ import numpy as np
 import seaborn as sns
 import gtfs_kit as gk
 
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import r2_score
 
 # Function to visualize on map the route
 def route_and_stop_visualization(stops, shapes):
@@ -239,7 +242,23 @@ def select_year_df(start,end):
                                      ], axis='columns')
     
     return year_analytics
+
+def regressor_metrics(y_test, y_pred, regressor, statistics):
     
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    display = pd.DataFrame(columns=["regressor", "mse", "rmse", "mae", "r2"])
+    
+    new_row = {'regressor ': regressor,'mse': mse,'rmse': rmse,'mae': mae,'r2': r2}
+    
+    display = pd.concat([display, pd.DataFrame([new_row])], ignore_index=True)
+    print(display.head())
+    del display
+    statistics = pd.concat([statistics, pd.DataFrame([new_row])], ignore_index=True)
+    return statistics
+
     
 def period_stop_based_data(df_analytics,list_of_range_time):
     # Needed information to process

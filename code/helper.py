@@ -251,7 +251,7 @@ def regressor_metrics(y_test, y_pred, regressor, statistics):
     r2 = r2_score(y_test, y_pred)
     display = pd.DataFrame(columns=["regressor", "mse", "rmse", "mae", "r2"])
     
-    new_row = {'regressor ': regressor,'mse': mse,'rmse': rmse,'mae': mae,'r2': r2}
+    new_row = {'regressor': regressor,'mse': mse,'rmse': rmse,'mae': mae,'r2': r2}
     
     display = pd.concat([display, pd.DataFrame([new_row])], ignore_index=True)
     print(display.head())

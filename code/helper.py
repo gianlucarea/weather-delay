@@ -10,6 +10,45 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 
+def mappaloccodice():
+    mappa_location_codice = {
+                  0:'S06500_1',
+                  1:'S06501_1',
+                  2:'S06400_1',
+                  3:'S06401_1',
+                  4:'S06402_1',
+                  5:'S06404_1',
+                  6:'S06313_1',
+                  7:'S06312_1',
+                  8:'S06310_1',
+                  9:'S06309_1',
+                  10:'S06308_1',
+                  11:'S06306_1',
+                  12:'S06304_1',
+                  13:'S06303_1',
+                  14:'S06302_1',
+                  15:'S06301_1',
+                  16:'S06300_1',
+                  17:'S06322_1',
+                  18:'S06323_1',
+                  19:'S06324_1',
+                  20:'S06325_1',
+                  21:'S06227_1',
+                  22:'S06226_1',
+                  23:'S06225_1',
+                  24:'S06224_1',
+                  25:'S06223_1',
+                  26:'S06222_1',
+                  27:'S06013_1'}
+    return mappa_location_codice
+
+
+def hours_of_the_day():
+    hours = ["00","01","02","03","04","05","06","07",
+             "08","09","10","11","12","13","14","15",
+             "16","17","18","19","20","21","22","23"]
+    return hours
+        
 # Function to visualize on map the route
 def route_and_stop_visualization(stops, shapes):
     ### We create a map with a view on the zone we are interested in
@@ -304,3 +343,49 @@ def period_stop_based_data(df_analytics,list_of_range_time):
 
     print(counter)
     return result
+
+def get_lista_fermate():
+    lista_fermate = ['PISA CENTRALE','PISA SAN ROSSORE',
+                     'S.GIULIANO TERME','RIGOLI','RIPAFRATTA',
+                     'LUCCA','S. PIETRO A VICO',
+                     'PONTE A MORIANO','DIECIMO - PESCAGLIA',
+                     'BORGO A MOZZANO','BAGNI DI LUCCA','GHIVIZZANO - COREGLIA',
+                     'FORNACI DI BARGA','BARGA GALLICANO','CASTELVECCHIO PASCOLI',
+                     'FOSCIANDORA - CESERANA','CASTELNUOVO DI GARFAGNANA',
+                     'VILLETTA S. ROMANO','POGGIO - CAREGGINE - VAGLI',
+                     'CAMPORGIANO','PIAZZA AL SERCHIO','MINUCCIANO - PIEVE - CASOLA',
+                     'EQUI TERME','MONZONE-M.DEI BANCHI-ISOLANO','GRAGNOLA',
+                     'FIVIZZANO - GASSANO','FIVIZZANO ROMETTA - SOLIERA','AULLA LUNIGIANA']
+    return lista_fermate
+
+def get_nome_codice_loc():
+    mappa_location_codice = {
+                  'PISA CENTRALE':'S06500_1',
+                  'PISA SAN ROSSORE':'S06501_1',
+                  'S.GIULIANO TERME':'S06400_1',
+                  'RIGOLI':'S06401_1',
+                  'RIPAFRATTA':'S06402_1',
+                  'LUCCA':'S06404_1',
+                  'S. PIETRO A VICO':'S06313_1',
+                  'PONTE A MORIANO':'S06312_1',
+                  'DIECIMO - PESCAGLIA':'S06310_1',
+                  'BORGO A MOZZANO':'S06309_1',
+                  'BAGNI DI LUCCA':'S06308_1',
+                  'GHIVIZZANO - COREGLIA':'S06306_1',
+                  'FORNACI DI BARGA':'S06304_1',
+                  'BARGA GALLICANO':'S06303_1',
+                  'CASTELVECCHIO PASCOLI':'S06302_1',
+                  'FOSCIANDORA - CESERANA':'S06301_1',
+                  'CASTELNUOVO DI GARFAGNANA':'S06300_1',
+                  'VILLETTA S. ROMANO':'S06322_1',
+                  'POGGIO - CAREGGINE - VAGLI':'S06323_1',
+                  'CAMPORGIANO':'S06324_1',
+                  'PIAZZA AL SERCHIO':'S06325_1',
+                  'MINUCCIANO - PIEVE - CASOLA':'S06227_1',
+                  'EQUI TERME':'S06226_1',
+                  'MONZONE-M.DEI BANCHI-ISOLANO':  'S06225_1',
+                  'GRAGNOLA':'S06224_1',
+                  'FIVIZZANO - GASSANO':'S06223_1',
+                  'FIVIZZANO ROMETTA - SOLIERA':'S06222_1',
+                  'AULLA LUNIGIANA':'S06013_1'}
+    return mappa_location_codice

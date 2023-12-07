@@ -160,7 +160,6 @@ cython_debug/
 #.idea/
 *.txt
 *.gtfs
-*.csv
 OLD/*.ipynb
 *.joblib
 *.png
